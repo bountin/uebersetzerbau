@@ -14,7 +14,7 @@ loop:
 	# dec updates ZF but not CF!
 	dec %rsi
 
-	# x[i] =>> 1
+	# x[i] >>= 1
 	# rcrq handles the CF
 	rcrq $1, (%rdi, %rsi, 8)
 
