@@ -25,3 +25,8 @@ The university page is at http://www.complang.tuwien.ac.at/andi/185A48
         carry = next_carry;
       }
     }
+
+<b>scanner</b> is a lexer for a simple exercise language. It is able to parse some keywords, decimal and 
+hexadecimal numbers and identifiers. For each found token it's printing what it has found. More details are 
+available in German on the practice page: 
+http://www.complang.tuwien.ac.at/ubvl/skriptum/skriptum12.html#x1-180007.3
