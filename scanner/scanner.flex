@@ -20,8 +20,8 @@ comment		\(\*.*\*\)
 
 {id}		{ printf("ident %s\n", yytext); }
 
-{hexnum}	{ printf("num %s\n", yytext); }
-{decnum}	{ printf("num %s\n", yytext); }
+{hexnum}	{ printf("num %.li\n", strtol(yytext,NULL,16) ); }
+{decnum}	{ printf("num %.li\n", strtol(yytext + sizeof(char) ,NULL,10) ); }
 
 {whitespace} |
 {comment}	{ /** Do nothing **/}
