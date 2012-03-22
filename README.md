@@ -1,6 +1,6 @@
-This is a repository for my univercity lecture 'Uebersetzerbau'. It's about how compilers work and for practice we have to implement our own language with our own compiler.
+This is a repository for my university lecture 'Uebersetzerbau'. It's about how compilers work and for practice we have to implement our own language with our own compiler.
 
-The univercity page is at http://www.complang.tuwien.ac.at/andi/185A48
+The university page is at http://www.complang.tuwien.ac.at/andi/185A48
 
 <b>asma</b> is a simple assembler script which implements the following C function:
 ```void asma_ref(unsigned long x[])
