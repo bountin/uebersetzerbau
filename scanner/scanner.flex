@@ -4,7 +4,7 @@ hexnum		[0-9][0-9a-fA-F]+
 decnum		&[0-9]+
 whitespace	[ \t\n]
 special		[;(),:=*-+#]|=<
-comment		\(\*.*\*\)
+comment		"(*"([^*]+|\*[^)*])*\*+")"
 
 %%	/***** Rules section *****/
 
