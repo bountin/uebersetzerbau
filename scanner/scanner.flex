@@ -3,7 +3,7 @@ id		[_a-zA-Z][_0-9a-zA-Z]*
 hexnum		[0-9][0-9a-fA-F]+
 decnum		&[0-9]+
 whitespace	[ \t\n]
-special		[;(),:=*-+#]|=<
+special		[;(),:=*\-+#]|=<
 comment		"(*"([^*]+|\*[^)*])*\*+")"
 
 %%	/***** Rules section *****/
