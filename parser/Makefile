@@ -5,3 +5,6 @@ all:
 
 clean:
 	rm -f *.c *.h parser
+
+test:
+	/usr/ftp/pub/ubvl/test11/parser/test

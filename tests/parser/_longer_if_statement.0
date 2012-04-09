@@ -1,0 +1,10 @@
+foo ()
+
+if ( &1 + &2 ) # 088
+then
+foo: return &13;
+bar: return &14;
+goto foo;
+end;
+
+end;

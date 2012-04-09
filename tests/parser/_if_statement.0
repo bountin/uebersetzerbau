@@ -1,0 +1,7 @@
+foo()
+
+if &1
+then 
+end;
+
+end;

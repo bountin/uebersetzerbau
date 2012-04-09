@@ -1,0 +1,5 @@
+foo () end;
+bar (x) end;
+baz (x,) end;
+blub(x,x) end;
+xxx (x,x,) end;

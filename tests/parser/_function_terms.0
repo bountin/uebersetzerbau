@@ -1,0 +1,10 @@
+foo()
+
+bar();
+bar(x);
+bar(x,);
+bar(-x,x);
+bar(-x,x,);
+bar(bar(x),x);
+
+end;

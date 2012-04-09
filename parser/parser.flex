@@ -29,14 +29,13 @@ COMMENT		"(*"([^*]+|\*[^)*])*\*+")"
 
 "end"		return T_END;
 "return" 	return T_RETURN;
+"goto"		return T_GOTO;
+"if"		return T_IF;
+"then"		return T_THEN;
+"var"		return T_VAR;
 
 "and"	return T_AND;
 "not"	return T_NOT;
-
-"goto"   |
-"if"     |
-"then"   |
-"var"  		printf("%s\n", yytext);
 
 {ID}		{ /*yylval = strdup(yytext); */ return T_IDENTIFIER; }
 
