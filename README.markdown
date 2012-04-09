@@ -30,3 +30,8 @@ The university page is at http://www.complang.tuwien.ac.at/andi/185A48
 hexadecimal numbers and identifiers. For each found token it's printing what it has found. More details are 
 available in German on the practice page: 
 http://www.complang.tuwien.ac.at/ubvl/skriptum/skriptum12.html#x1-180007.3
+
+<b>parser</b> adds a semantical check to the lexical that was implemented before (scanner). It is expecting 
+a single function definition with n parameters and terminated by the keyword <i>end</i>. Its body can 
+contain several operations as well as <i>goto</i>s or <i>if</i>s. The complete grammar as EBNF is available 
+at http://www.complang.tuwien.ac.at/ubvl/skriptum/skriptum12.html#x1-220007.4
