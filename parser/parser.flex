@@ -4,7 +4,7 @@
 %}
 
 ID		[_a-zA-Z][_0-9a-zA-Z]*
-HEXNUM		[0-9][0-9a-fA-F]+
+HEXNUM		[0-9][0-9a-fA-F]*
 DECNUM		&[0-9]+
 WHITESPACE	[ \t\n]
 COMMENT		"(*"([^*]+|\*[^)*])*\*+")"
