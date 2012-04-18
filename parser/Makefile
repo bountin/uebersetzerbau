@@ -7,4 +7,4 @@ clean:
 	rm -f *.c *.h parser
 
 test:
-	/usr/ftp/pub/ubvl/test11/parser/test
+	/usr/ftp/pub/ubvl/test12/parser/test
