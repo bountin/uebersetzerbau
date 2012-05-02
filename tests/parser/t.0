@@ -1,0 +1,3 @@
+f()
+  return x=<x;
+end;

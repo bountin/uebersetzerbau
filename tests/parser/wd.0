@@ -1,0 +1,8 @@
+f(x,x)
+  if x+x+(x*x) then
+    var x=x=<x;
+    x: *(x*x)=**x;
+    x;
+  end;
+  return x and (not x(x+x+x,*x));
+end;

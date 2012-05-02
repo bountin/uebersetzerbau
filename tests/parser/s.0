@@ -1,0 +1,3 @@
+f()
+ return x and x and x and x;
+end;
