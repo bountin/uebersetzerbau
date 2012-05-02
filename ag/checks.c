@@ -19,3 +19,25 @@ void check_variable(char *name, symbol *params, symbol *vars) {
 		exit(3);
 	}
 }
+
+void check_duplicates(symbol *vars, symbol *params, symbol *labels) {
+	symbol *s = vars;
+
+	while(s != (symbol *)NULL) {
+		if (table_has_symbol(params, s->name) || table_has_symbol(labels, s->name)) {
+			printf("'%s' is a variable and a parameter/label\n", s->name);
+			exit(3);
+		}
+		s = s->next;
+	}	
+	
+	s = params;
+
+	while(s != (symbol *)NULL) {
+		if (table_has_symbol(labels, s->name)) {
+			printf("'%s' is a parameter and a label\n", s->name);
+			exit(3);
+		}
+		s = s->next;
+	}
+}

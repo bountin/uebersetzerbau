@@ -31,9 +31,9 @@ main() { yyparse(); }
 @attributes {char *name;} 	T_IDENTIFIER
 
 @attributes {struct symbol *labels_out, *labels_in;}					labeldefinition
-@attributes {struct symbol *labels_out, *params, *vars_in, *vars_out, *vars, *labels;}	stats
+@attributes {struct symbol *labels_out, *params, *vars_in, *labels_in, *vars_out, *vars, *labels;}	stats
 @attributes {struct symbol *params_out, *params_in;}					parameters
-@attributes {struct symbol *params, *vars_in, *vars_out, *vars, *labels;} 		stat
+@attributes {struct symbol *params, *vars_in, *vars_out, *labels_in, *labels_out, *vars, *labels;} 		stat
 
 @attributes {struct symbol *params, *vars, *labels; }	expression add_expr mult_expr and_expr unary term call_parameters
 
@@ -49,7 +49,7 @@ program:
 
 function:
 	  T_IDENTIFIER '(' parameters ')' stats T_END ';'
-		@{
+		@{	@i @stats.labels_in@ = NULL;
 			@i @stats.labels@ = @stats.labels_out@;
 
 			@i @parameters.params_in@ = NULL;
@@ -76,35 +76,39 @@ parameters:
 stats:	
 	  labeldefinition stat ';' stats
 		@{
-			@i @labeldefinition.labels_in@ = NULL;
-			@i @stats.0.labels_out@ = tbl_merge(@labeldefinition.labels_out@, @stats.1.labels_out@);
+			@i @labeldefinition.labels_in@ = @stats.labels_in@;
+			@i @stat.labels_in@ = @labeldefinition.labels_out@;
+			@i @stats.1.labels_in@ = @stat.labels_out@;
+			@i @stats.0.labels_out@ = @stats.1.labels_out@;
 			
-			@i @stats.1.params@ = @stats.params@;
-			@i @stat.params@ = @stats.params@;
-
 			@i @stat.vars_in@ = @stats.vars_in@;
 			@i @stats.1.vars_in@ = @stat.vars_out@;
 			@i @stats.0.vars_out@ = @stats.1.vars_out@;
 
 			@i @stat.vars@ = @stats.1.vars_out@;
+
+			@t check_duplicates(@stats.vars@, @stats.params@, @stats.labels@);
 		@}
 	| stat ';' stats
 		@{
+			@i @stat.labels_in@ = @stats.labels_in@;
+			@i @stats.1.labels_in@ = @stat.labels_out@;
 			@i @stats.0.labels_out@ = @stats.1.labels_out@;
 			
-			@i @stats.1.params@ = @stats.params@;
-			@i @stat.params@ = @stats.params@;
-
 			@i @stat.vars_in@ = @stats.vars_in@;
 			@i @stats.1.vars_in@ = @stat.vars_out@;
 			@i @stats.vars_out@ = @stats.1.vars_out@;
 
 			@i @stat.vars@ = @stats.1.vars_out@;
+
+			@t check_duplicates(@stats.vars@, @stats.params@, @stats.labels@);
 		@}
 	|
 		@{
-			@i @stats.labels_out@ = NULL;
+			@i @stats.labels_out@ = @stats.labels_in@;
 			@i @stats.vars_out@ = @stats.vars_in@;
+
+			@t check_duplicates(@stats.vars@, @stats.params@, @stats.labels@);
 		@}
 	;
 
@@ -121,28 +125,37 @@ labeldefinition:
 stat:
 	  T_RETURN expression
 		@{	@i @stat.vars_out@ =  @stat.vars_in@;
+			@i @stat.labels_out@ = @stat.labels_in@;
 		@}
 	| T_GOTO T_IDENTIFIER
-		@{ 	@t check_label(@T_IDENTIFIER.name@, @stat.labels@);
+		@{ 	@i @stat.labels_out@ = @stat.labels_in@;
+			@t check_label(@T_IDENTIFIER.name@, @stat.labels@);
 			@i @stat.vars_out@ =  @stat.vars_in@;
 		@}
 	| T_IF expression T_THEN stats T_END
 		@{	@i @stat.vars_out@ = @stat.vars_in@;
 			@i @stats.vars_in@ = @stat.vars@;
 			@i @stats.vars@ = @stats.vars_out@;
+
+			@i @stats.labels_in@ = @stat.labels_in@;
+			@i @stat.labels_out@ = @stats.labels_out@;
 		@}
 	| T_VAR T_IDENTIFIER '=' expression 	/* variable initialization */
 		@{	@i @stat.vars_out@ = tbl_add_symbol(@stat.vars_in@, @T_IDENTIFIER.name@);
+			@i @stat.labels_out@ = @stat.labels_in@;
 		@}
 	| T_IDENTIFIER '=' expression		/* writing to variable */
 		@{	@i @stat.vars_out@ =  @stat.vars_in@;
+			@i @stat.labels_out@ = @stat.labels_in@;
 			@t check_variable(@T_IDENTIFIER.name@, @stat.params@, @stat.vars@);
 		@}
 	| T_MULT unary '=' expression		/* writing to memory */
 		@{	@i @stat.vars_out@ =  @stat.vars_in@;
+			@i @stat.labels_out@ = @stat.labels_in@;
 		@}
 	| term
 		@{	@i @stat.vars_out@ =  @stat.vars_in@;
+			@i @stat.labels_out@ = @stat.labels_in@;
 		@}
 	;
 
