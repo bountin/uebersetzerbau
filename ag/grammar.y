@@ -7,51 +7,39 @@
 #include "table.h"
 #include "checks.h"
 
-int yyerror(const char *msg) {
+#define YYERROR_VERBOSE
+
+int yyerror(const char *msg) { /** Grammar errors **/
 	fprintf(stderr, "Error: %s\n", msg);
 	exit(2);
 }
-
-int yywrap() {
-	return 1;
-}
-
-main()
-{
-	yyparse();
-}
-
-#define YYERROR_VERBOSE 
-
+int yywrap() { return 1; }
+main() { yyparse(); }
 %}
 
 %token T_PLUS T_MINUS T_MULT
 %token T_CMP_LE
-
 %token T_RETURN T_IF T_THEN T_GOTO T_VAR
 %token T_END T_NOT T_AND
-
 %token T_NUM
 %token T_IDENTIFIER
 
-%{
-	struct symbol 	*labels = NULL,
-			*vars = NULL;
-%}
-
-@autoinh params
+/** Distribute tables by default **/
+@autoinh params vars labels
 
 @attributes {int val;} 		T_NUM
 @attributes {char *name;} 	T_IDENTIFIER
-@attributes {struct symbol *labels_out, *labels_in;}	labeldefinition
-@attributes {struct symbol *labels_out, *params, *vars_in, *vars_out;}	stats
-@attributes {struct symbol *labels_out, *params_out, *vars_out;}	function
-@attributes {struct symbol *params_out, *params_in;}	parameters
 
-@attributes {struct symbol *params, *vars_in, *vars_out;} stat
-@attributes {struct symbol *params; }	expression add_expr mult_expr and_expr unary term call_parameters
+@attributes {struct symbol *labels_out, *labels_in;}					labeldefinition
+@attributes {struct symbol *labels_out, *params, *vars_in, *vars_out, *vars, *labels;}	stats
+@attributes {struct symbol *params_out, *params_in;}					parameters
+@attributes {struct symbol *params, *vars_in, *vars_out, *vars, *labels;} 		stat
 
+@attributes {struct symbol *params, *vars, *labels; }	expression add_expr mult_expr and_expr unary term call_parameters
+
+/** Test used variables and labels **/
 @traversal @preorder t
+
 %%
 
 program:
@@ -62,17 +50,13 @@ program:
 function:
 	  T_IDENTIFIER '(' parameters ')' stats T_END ';'
 		@{
-			@i @function.labels_out@ = @stats.labels_out@;
+			@i @stats.labels@ = @stats.labels_out@;
 
 			@i @parameters.params_in@ = NULL;
-			@i @function.params_out@ = @parameters.params_out@;
 			@i @stats.params@ = @parameters.params_out@;
 			
 			@i @stats.vars_in@ = NULL;
-			@i @function.vars_out@ = @stats.vars_out@;
-
-			@t labels = @function.labels_out@;
-			@t vars = @function.vars_out@;
+			@i @stats.vars@ = @stats.vars_out@;
 		@}
 	;
 
@@ -85,14 +69,14 @@ parameters:
 		@{ 	@i @parameters.params_out@ = tbl_add_symbol(@parameters.params_in@, @T_IDENTIFIER.name@);
 		@}
 	|
-		@{	@i  @parameters.params_out@ = NULL;
+		@{	@i  @parameters.params_out@ = @parameters.params_in@;
 		@}
 	;
 
 stats:	
 	  labeldefinition stat ';' stats
 		@{
-			@i @labeldefinition.labels_in@ = (symbol *)NULL;
+			@i @labeldefinition.labels_in@ = NULL;
 			@i @stats.0.labels_out@ = tbl_merge(@labeldefinition.labels_out@, @stats.1.labels_out@);
 			
 			@i @stats.1.params@ = @stats.params@;
@@ -101,6 +85,8 @@ stats:
 			@i @stat.vars_in@ = @stats.vars_in@;
 			@i @stats.1.vars_in@ = @stat.vars_out@;
 			@i @stats.0.vars_out@ = @stats.1.vars_out@;
+
+			@i @stat.vars@ = @stats.1.vars_out@;
 		@}
 	| stat ';' stats
 		@{
@@ -112,6 +98,8 @@ stats:
 			@i @stat.vars_in@ = @stats.vars_in@;
 			@i @stats.1.vars_in@ = @stat.vars_out@;
 			@i @stats.vars_out@ = @stats.1.vars_out@;
+
+			@i @stat.vars@ = @stats.1.vars_out@;
 		@}
 	|
 		@{
@@ -135,22 +123,20 @@ stat:
 		@{	@i @stat.vars_out@ =  @stat.vars_in@;
 		@}
 	| T_GOTO T_IDENTIFIER
-		@{ 	@t check_label(@T_IDENTIFIER.name@, labels);
+		@{ 	@t check_label(@T_IDENTIFIER.name@, @stat.labels@);
 			@i @stat.vars_out@ =  @stat.vars_in@;
 		@}
 	| T_IF expression T_THEN stats T_END
-		@{	@i @stat.vars_out@ =  @stat.vars_in@;
-			@i @stats.vars_in@ = NULL;
-
-			@t vars = tbl_merge(vars, @stats.vars_out@);
-			@t tbl_print(vars);
+		@{	@i @stat.vars_out@ = @stat.vars_in@;
+			@i @stats.vars_in@ = @stat.vars@;
+			@i @stats.vars@ = @stats.vars_out@;
 		@}
 	| T_VAR T_IDENTIFIER '=' expression 	/* variable initialization */
 		@{	@i @stat.vars_out@ = tbl_add_symbol(@stat.vars_in@, @T_IDENTIFIER.name@);
 		@}
 	| T_IDENTIFIER '=' expression		/* writing to variable */
 		@{	@i @stat.vars_out@ =  @stat.vars_in@;
-			@t check_variable(@T_IDENTIFIER.name@, @stat.params@, vars);
+			@t check_variable(@T_IDENTIFIER.name@, @stat.params@, @stat.vars@);
 		@}
 	| T_MULT unary '=' expression		/* writing to memory */
 		@{	@i @stat.vars_out@ =  @stat.vars_in@;
@@ -195,7 +181,7 @@ term:
 	  '(' expression ')'
 	| T_NUM
 	| T_IDENTIFIER		/* reading from variable */
-		@{	@t check_variable(@T_IDENTIFIER.name@, @term.params@, vars);
+		@{	@t check_variable(@T_IDENTIFIER.name@, @term.params@, @term.vars@);
 		@}
 	| T_IDENTIFIER '(' call_parameters ')'
 	;
