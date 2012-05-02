@@ -56,7 +56,8 @@ stats:
 	;
 
 labeldefinition:
-	  T_IDENTIFIER ':'
+	  labeldefinition T_IDENTIFIER ':'
+	| T_IDENTIFIER ':'
 	;
 
 stat:
@@ -71,11 +72,26 @@ stat:
 
 expression:
 	  unary
-	| term T_PLUS term 	{ $$ = $1 + $3 }
-	| term T_MULT term	{ $$ = $1 * $3 }
-	| term T_AND  term
+	| add_expr
+	| mult_expr
+	| and_expr
 	| term T_CMP_LE term
 	| term '#' term
+	;
+
+add_expr:
+	  term T_PLUS term	{ $$ = $1 + $3 }
+	| term T_PLUS add_expr  { $$ = $1 + $3 }
+	;
+
+mult_expr:
+	  term T_MULT term	{ $$ = $1 * $3 }
+	| term T_MULT mult_expr { $$ = $1 * $3 }
+	;
+
+and_expr:
+	  term T_AND term
+	| term T_AND and_expr
 	;
 
 unary:

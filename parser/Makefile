@@ -1,6 +1,6 @@
 all:
 	flex parser.flex
-	bison -d parser.y
+	bison -vd parser.y
 	gcc *.c -lfl -o parser
 
 clean:
