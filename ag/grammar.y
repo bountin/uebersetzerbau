@@ -35,7 +35,8 @@ main()
 %token T_IDENTIFIER
 
 %{
-	struct symbol 	*labels = NULL;
+	struct symbol 	*labels = NULL,
+			*vars = NULL;
 %}
 
 @autoinh params
@@ -71,6 +72,7 @@ function:
 			@i @function.vars_out@ = @stats.vars_out@;
 
 			@t labels = @function.labels_out@;
+			@t vars = @function.vars_out@;
 		@}
 	;
 
@@ -139,12 +141,16 @@ stat:
 	| T_IF expression T_THEN stats T_END
 		@{	@i @stat.vars_out@ =  @stat.vars_in@;
 			@i @stats.vars_in@ = NULL;
+
+			@t vars = tbl_merge(vars, @stats.vars_out@);
+			@t tbl_print(vars);
 		@}
 	| T_VAR T_IDENTIFIER '=' expression 	/* variable initialization */
 		@{	@i @stat.vars_out@ = tbl_add_symbol(@stat.vars_in@, @T_IDENTIFIER.name@);
 		@}
 	| T_IDENTIFIER '=' expression		/* writing to variable */
 		@{	@i @stat.vars_out@ =  @stat.vars_in@;
+			@t check_variable(@T_IDENTIFIER.name@, @stat.params@, vars);
 		@}
 	| T_MULT unary '=' expression		/* writing to memory */
 		@{	@i @stat.vars_out@ =  @stat.vars_in@;
@@ -188,8 +194,8 @@ unary:
 term:
 	  '(' expression ')'
 	| T_NUM
-	| T_IDENTIFIER
-		@{
+	| T_IDENTIFIER		/* reading from variable */
+		@{	@t check_variable(@T_IDENTIFIER.name@, @term.params@, vars);
 		@}
 	| T_IDENTIFIER '(' call_parameters ')'
 	;
