@@ -85,8 +85,6 @@ stats:
 			@i @stats.1.vars_in@ = @stat.vars_out@;
 			@i @stats.0.vars_out@ = @stats.1.vars_out@;
 
-			@i @stat.vars@ = @stats.1.vars_out@;
-
 			@t check_duplicates(@stats.vars@, @stats.params@, @stats.labels@);
 		@}
 	| stat ';' stats
@@ -98,8 +96,6 @@ stats:
 			@i @stat.vars_in@ = @stats.vars_in@;
 			@i @stats.1.vars_in@ = @stat.vars_out@;
 			@i @stats.vars_out@ = @stats.1.vars_out@;
-
-			@i @stat.vars@ = @stats.1.vars_out@;
 
 			@t check_duplicates(@stats.vars@, @stats.params@, @stats.labels@);
 		@}
@@ -129,8 +125,9 @@ stat:
 		@}
 	| T_GOTO T_IDENTIFIER
 		@{ 	@i @stat.labels_out@ = @stat.labels_in@;
-			@t check_label(@T_IDENTIFIER.name@, @stat.labels@);
 			@i @stat.vars_out@ =  @stat.vars_in@;
+
+			@t check_label(@T_IDENTIFIER.name@, @stat.labels@);
 		@}
 	| T_IF expression T_THEN stats T_END
 		@{	@i @stat.vars_out@ = @stat.vars_in@;
@@ -147,6 +144,7 @@ stat:
 	| T_IDENTIFIER '=' expression		/* writing to variable */
 		@{	@i @stat.vars_out@ =  @stat.vars_in@;
 			@i @stat.labels_out@ = @stat.labels_in@;
+
 			@t check_variable(@T_IDENTIFIER.name@, @stat.params@, @stat.vars@);
 		@}
 	| T_MULT unary '=' expression		/* writing to memory */
