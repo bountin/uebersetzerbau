@@ -1,4 +1,4 @@
-codea: y.tab.c lex.yy.c table.c table.h checks.c checks.h
+codea: y.tab.c lex.yy.c table.c table.h checks.c checks.h code.c code_gen.c code_gen.h asm.c asm.h
 	gcc *.c -lfl -o codea
 
 oxout.y oxout.l: grammar.y scanner.flex
@@ -18,3 +18,6 @@ clean:
 
 test: codea
 	/usr/ftp/pub/ubvl/test12/codea/test
+
+test2: codea
+	echo  "f() return &12 + &42; end;" | ./codea

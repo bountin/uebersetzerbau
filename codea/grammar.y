@@ -6,6 +6,7 @@
 
 #include "table.h"
 #include "checks.h"
+#include "code_gen.h"
 
 #define YYERROR_VERBOSE
 
@@ -33,18 +34,28 @@ main() { yyparse(); }
 @attributes {struct symbol *labels_out, *labels_in;}					labeldefinition
 @attributes {struct symbol *labels_out, *params, *vars_in, *labels_in, *vars_out, *vars, *labels;}	stats
 @attributes {struct symbol *params_out, *params_in;}					parameters
-@attributes {struct symbol *params, *vars_in, *vars_out, *labels_in, *labels_out, *vars, *labels;} 		stat
+@attributes {struct symbol *params, *vars_in, *vars_out, *labels_in, *labels_out, *vars, *labels; struct code_ptr *code;} 		stat
 
-@attributes {struct symbol *params, *vars, *labels; }	expression add_expr mult_expr and_expr unary term call_parameters
+@attributes {struct symbol *params, *vars, *labels; struct code_ptr *code; }	expression add_expr mult_expr and_expr unary term
+@attributes {struct symbol *params, *vars, *labels; }	call_parameters
 
 /** Test used variables and labels **/
 @traversal @preorder t
 
+/** Generate ASM **/
+@traversal @preorder asm
+
 %%
 
 program:
-	function program
-	| 
+	functions
+		@{	@asm printf(".text\n");
+		@}
+	;
+
+functions:
+	function functions
+	|
 	;
 
 function:
@@ -53,10 +64,12 @@ function:
 			@i @stats.labels@ = @stats.labels_out@;
 
 			@i @parameters.params_in@ = NULL;
-			@i @stats.params@ = @parameters.params_out@;
+			@i @stats.params@ = gen_para_regs(@parameters.params_out@);
 			
 			@i @stats.vars_in@ = NULL;
 			@i @stats.vars@ = @stats.vars_out@;
+			
+			@asm asm_func_head(@T_IDENTIFIER.name@);
 		@}
 	;
 
@@ -84,8 +97,10 @@ stats:
 			@i @stat.vars_in@ = @stats.vars_in@;
 			@i @stats.1.vars_in@ = @stat.vars_out@;
 			@i @stats.0.vars_out@ = @stats.1.vars_out@;
-
+			
 			@t check_duplicates(@stats.vars@, @stats.params@, @stats.labels@);
+
+			@asm execute_iburg(@stat.code@);
 		@}
 	| stat ';' stats
 		@{
@@ -98,6 +113,8 @@ stats:
 			@i @stats.vars_out@ = @stats.1.vars_out@;
 
 			@t check_duplicates(@stats.vars@, @stats.params@, @stats.labels@);
+
+			@asm execute_iburg(@stat.code@);
 		@}
 	|
 		@{
@@ -122,12 +139,18 @@ stat:
 	  T_RETURN expression
 		@{	@i @stat.vars_out@ =  @stat.vars_in@;
 			@i @stat.labels_out@ = @stat.labels_in@;
+
+			@i @stat.code@ = create_code(TT_RETURN, @expression.code@, (code_ptr *)NULL);
 		@}
 	| T_GOTO T_IDENTIFIER
 		@{ 	@i @stat.labels_out@ = @stat.labels_in@;
 			@i @stat.vars_out@ =  @stat.vars_in@;
 
 			@t check_label(@T_IDENTIFIER.name@, @stat.labels@);
+
+			@i @stat.code@ = (code_ptr *)NULL;
+
+			@t not_supported("GOTOs");
 		@}
 	| T_IF expression T_THEN stats T_END
 		@{	@i @stat.vars_out@ = @stat.vars_in@;
@@ -136,65 +159,116 @@ stat:
 
 			@i @stats.labels_in@ = @stat.labels_in@;
 			@i @stat.labels_out@ = @stats.labels_out@;
+
+			@i @stat.code@ = (code_ptr *)NULL;
+
+			@t not_supported("IFs");
 		@}
 	| T_VAR T_IDENTIFIER '=' expression 	/* variable initialization */
 		@{	@i @stat.vars_out@ = tbl_add_symbol(@stat.vars_in@, @T_IDENTIFIER.name@);
 			@i @stat.labels_out@ = @stat.labels_in@;
+
+			@i @stat.code@ = (code_ptr *)NULL;
 		@}
 	| T_IDENTIFIER '=' expression		/* writing to variable */
 		@{	@i @stat.vars_out@ =  @stat.vars_in@;
 			@i @stat.labels_out@ = @stat.labels_in@;
 
 			@t check_variable(@T_IDENTIFIER.name@, @stat.params@, @stat.vars@);
+
+			@i @stat.code@ = (code_ptr *)NULL;
 		@}
 	| T_MULT unary '=' expression		/* writing to memory */
 		@{	@i @stat.vars_out@ =  @stat.vars_in@;
 			@i @stat.labels_out@ = @stat.labels_in@;
+
+			@i @stat.code@ = (code_ptr *)NULL;
 		@}
 	| term
 		@{	@i @stat.vars_out@ =  @stat.vars_in@;
 			@i @stat.labels_out@ = @stat.labels_in@;
+
+			@i @stat.code@ = @term.code@;
 		@}
 	;
 
 expression:
 	  unary
+		@{	@i @expression.code@ = @unary.code@;
+		@}
 	| add_expr
+		@{	@i @expression.code@ = @add_expr.code@;
+		@}
 	| mult_expr
+		@{	@i @expression.code@ = @mult_expr.code@;
+		@}
 	| and_expr
+		@{	@i @expression.code@ = @and_expr.code@;
+		@}
 	| term T_CMP_LE term
+		@{	@i @expression.code@ = create_code(TT_CMP_LE, @term.code@, @term.1.code@);
+		@}
 	| term '#' term
+		@{	@i @expression.code@ = create_code(TT_CMP_NE, @term.code@, @term.1.code@);
+		@}
 	;
 
 add_expr:
 	  term T_PLUS term
+		@{	@i @add_expr.code@ = create_code(TT_ADD, @term.code@, @term.1.code@);
+ 			@}
 	| term T_PLUS add_expr
+		@{	@i @add_expr.code@ = create_code(TT_ADD, @term.code@, @add_expr.1.code@);
+		@}
 	;
 
 mult_expr:
 	  term T_MULT term
+		@{	@i @mult_expr.code@ = create_code(TT_MULT, @term.code@, @term.1.code@);
+		@}
 	| term T_MULT mult_expr
+		@{	@i @mult_expr.code@ = create_code(TT_MULT, @term.code@, @mult_expr.1.code@);
+		@}
 	;
 
 and_expr:
 	  term T_AND term
+		@{	@i @and_expr.code@ = create_code(TT_AND, @term.code@, @term.1.code@);
+		@}
 	| term T_AND and_expr
+		@{	@i @and_expr.code@ = create_code(TT_AND, @term.code@, @and_expr.1.code@);
+		@}
 	;
 
 unary:
 	  T_NOT unary
+		@{	@i @unary.code@ = create_code(TT_NOT, @unary.1.code@, (code_ptr *)NULL);
+		@}
 	| T_MINUS unary
+		@{	@i @unary.code@ = create_code(TT_MINUS, @unary.1.code@, (code_ptr *)NULL);
+		@}
 	| T_MULT unary		/* reading from memory */
+		@{	@i @unary.code@ = create_code(TT_READ, @unary.1.code@, (code_ptr *)NULL);
+		@}
 	| term
+		@{	@i @unary.code@ = @term.code@;
+		@}
 	;
 
 term:
 	  '(' expression ')'
+		@{	@i @term.code@ = @expression.code@;
+		@}
 	| T_NUM
+		@{	@i @term.code@ = create_code_num(@T_NUM.val@);
+		@}	
 	| T_IDENTIFIER		/* reading from variable */
-		@{	@t check_variable(@T_IDENTIFIER.name@, @term.params@, @term.vars@);
+		@{	@i @term.code@ = create_code_var(@T_IDENTIFIER.name@, @term.params@, @term.vars@);
 		@}
 	| T_IDENTIFIER '(' call_parameters ')'
+		@{	@i @term.code@ = (code_ptr *)NULL;
+			@t not_supported("Function call");
+		@}
 	;
 
 call_parameters:

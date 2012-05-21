@@ -1,0 +1,34 @@
+%{
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+
+#define CODE
+
+#include "asm.h"
+#include "code_gen.h"
+
+%}
+%start stat
+%term TT_RETURN=1 TT_NUM=2 TT_IDENTIFIER=3 TT_ADD=4 TT_MULT=5 TT_MINUS=6 TT_VARIABLE=7 TT_AND=8 TT_CMP_LE=9 TT_CMP_NE=10 TT_NOT=11 TT_READ=12
+%%
+
+stat:	return			# 0 #
+
+return:	TT_RETURN(expr)		# 2 #	asm_mov(LC_REG(bnode), "rax"); asm_ret();
+
+expr:	unary			# 0 #
+expr:	TT_ADD(term, term)	# 1 #	asm_mov(LC_REG(bnode), "rax"); printf("\taddq %%%s, %%rax\n",RIGHT_CHILD(bnode)->reg); bnode->reg = "rax";
+expr:	TT_MULT(term, term)	# 1 #	printf("\tmovq %%%s, %%rax\n\tmul  %%%s, %%rax\n", LEFT_CHILD(bnode)->reg, RIGHT_CHILD(bnode)->reg); bnode->reg = "rax";
+expr:	TT_AND(term, term)	# 1 #	printf("\tmovq %%%s, %%rax\n\tandq %%%s, %%rax\n", LEFT_CHILD(bnode)->reg, RIGHT_CHILD(bnode)->reg); bnode->reg = "rax";
+
+unary:	term			# 0 #
+unary:	TT_NOT(unary)		# 0 #	printf("\tmovq %%%s, %%rax\n\tnot %%rax\n", LEFT_CHILD(bnode)->reg); bnode->reg = "rax";
+unary:	TT_MINUS(unary)		# 0 #	printf("\tmovq %%%s, %%rax\n\tneg %%rax\n", LEFT_CHILD(bnode)->reg); bnode->reg = "rax";
+
+term:	expr			# 0 #
+term:	TT_NUM			# 0 #	printf("\tmovq $%i, %%r11\n", bnode->val); bnode->reg = "r11";
+term:	TT_VARIABLE		# 0 #	// haz register
+
+%%

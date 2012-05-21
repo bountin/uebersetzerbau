@@ -54,9 +54,28 @@ void tbl_print(symbol *table) {
 
 	if (table == (symbol *)NULL) { printf("Empty\n\n"); return; }
 
-	while (s->next != (symbol *)NULL) {
-		printf("%s\n", s->name);
+	while (s != (symbol *)NULL) {
+		if (s->reg == (char *)NULL) {
+			printf("%s\n", s->name);
+		} else {
+			printf("%s (%s)\n", s->name, s->reg);
+		}
 		s = s->next;
 	}
-	printf("%s\n\n", s->name);
+}
+
+char *tbl_find_reg(char *name, symbol *table) {
+	symbol *s = table;
+
+	while (s != (symbol *)NULL) {
+		if (strcmp(s->name, name) == 0) {
+			#ifdef MY_DEBUG
+			printf(" -- Found %s: register %s\n",s-> name, s->reg);
+			#endif
+			return strdup(s->reg);
+		}
+		s = s->next;
+	}
+	
+	printf("THIS SHOULD NEVER HAPPEN (tbl_find_reg(%s))", name);
 }
