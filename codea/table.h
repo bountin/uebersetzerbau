@@ -1,7 +1,7 @@
 #ifndef TABLE_H
 #define TABLE_H
 
-#define MY_DEBUG
+//#define MY_DEBUG
 
 struct symbol {
 	struct symbol *next;

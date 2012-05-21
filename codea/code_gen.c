@@ -10,7 +10,7 @@ void execute_iburg(code_ptr* code) {
 
 void not_supported(char* production) {
 	printf("Tried to compile an unsupported command: %s\n", production);
-	exit(4);
+	exit(3);
 }
 
 code_ptr *create_code(int type, code_ptr* left_child, code_ptr* right_child) {

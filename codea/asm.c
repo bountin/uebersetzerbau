@@ -120,8 +120,6 @@ char* asm_cmp_le(char* p1, char* p2) {
         printf("\t# p1: %i, p2: %i\n", reg_is_param(p1), reg_is_param(p2));
         #endif
 
-        printf("\tcmp %%%s, %%%s\n", p1, p2);
-
         if (reg_is_tmp(p1)) {
                 r = p1;
                 if (reg_is_tmp(p2)) {
@@ -132,8 +130,10 @@ char* asm_cmp_le(char* p1, char* p2) {
         } else {
                 r = newreg();
         }
-	printf("\txor %%%s, %%%1$s\n", r);
-        printf("\tsetle %%%s\n", get_8reg(r));
+
+        printf("\tcmp %%%s, %%%s\n", p1, p2);
+        printf("\tsetge %%%s\n", get_8reg(r));
+	printf("\tand $255, %%%s\n", r);
         return r;	
 }
 
@@ -144,8 +144,6 @@ char* asm_cmp_ne(char* p1, char* p2) {
         printf("\t# asm_cmp_ne(%s, %s)\n", p1, p2);
 	printf("\t# p1: %i, p2: %i\n", reg_is_param(p1), reg_is_param(p2));
         #endif
-
-	printf("\tcmp %%%s, %%%s\n", p1, p2);
 
 	if (reg_is_tmp(p1)) {
 		r = p1;
@@ -158,6 +156,7 @@ char* asm_cmp_ne(char* p1, char* p2) {
 		r = newreg();
 	}
 	printf("\txor %%%s, %%%1$s\n", r);
+	printf("\tcmp %%%s, %%%s\n", p1, p2);
 	printf("\tsetz %%%s\n", get_8reg(r));
 	return r;
 }

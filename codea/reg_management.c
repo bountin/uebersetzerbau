@@ -13,7 +13,7 @@ int get_reg_number(char *r) {
 	}
 	
 	printf("D'oh! register not found: %s\n", r);
-	exit(4); 
+	exit(3); 
 }
 
 char* get_8reg(char* r) {
@@ -77,8 +77,7 @@ char *newreg() {
 	}
 
 	printf("\nNo more registers available :(\n");
-	exit(4);
-	return "";
+	exit(3);
 }
 
 void freereg(char* r) {

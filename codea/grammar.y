@@ -170,6 +170,8 @@ stat:
 			@i @stat.labels_out@ = @stat.labels_in@;
 
 			@i @stat.code@ = (code_ptr *)NULL;
+
+			@t not_supported("declaration");
 		@}
 	| T_IDENTIFIER '=' expression		/* writing to variable */
 		@{	@i @stat.vars_out@ =  @stat.vars_in@;
@@ -178,12 +180,16 @@ stat:
 			@t check_variable(@T_IDENTIFIER.name@, @stat.params@, @stat.vars@);
 
 			@i @stat.code@ = (code_ptr *)NULL;
+
+			@t not_supported("assignment");
 		@}
 	| T_MULT unary '=' expression		/* writing to memory */
 		@{	@i @stat.vars_out@ =  @stat.vars_in@;
 			@i @stat.labels_out@ = @stat.labels_in@;
 
 			@i @stat.code@ = (code_ptr *)NULL;
+
+			@t not_supported("writing to memory");
 		@}
 	| term
 		@{	@i @stat.vars_out@ =  @stat.vars_in@;
