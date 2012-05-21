@@ -1,0 +1,8 @@
+f(a,b,c,d,e) 
+	return a+b+c;
+end;
+
+
+h(x,y,a) 
+	return y * a;
+end;

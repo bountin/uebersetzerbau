@@ -1,0 +1,3 @@
+f()
+	return not not not (-&43);
+end;

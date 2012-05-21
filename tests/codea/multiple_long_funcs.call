@@ -1,0 +1,4 @@
+extern long f(long, long, long, long, long);
+extern long h(long, long, long);
+
+RET(f(1,2,3,4,5) == 6 && h(6,4,3) == 12);
