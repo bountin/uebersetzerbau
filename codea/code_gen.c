@@ -57,7 +57,7 @@ symbol* gen_para_regs(symbol* parameters) {
 	}
 
 	#ifdef MY_DEBUG
-	printf("-- ASSIGNING PARAMETER REGISTERS\n");
+	printf("#-- ASSIGNING PARAMETER REGISTERS\n");
 	tbl_print(para_start);
 	printf("\n");
 	#endif
@@ -66,6 +66,6 @@ symbol* gen_para_regs(symbol* parameters) {
 }
 
 void code_print(code_ptr* c) {
-	printf(" - CODE INFO\n");
-	printf("  op: %i\n  val: %li\n  name: %s\n  reg: %s\n  LC: %p\n  RC: %p", c->op, c->val, c->name, c->reg, LEFT_CHILD(c), RIGHT_CHILD(c));
+	printf("# - CODE INFO\n");
+	printf("#  op: %i\n#  val: %li\n#  name: %s\n#  reg: %s\n#  LC: %p\n#  RC: %p\n", c->op, c->val, c->name, c->reg, LEFT_CHILD(c), RIGHT_CHILD(c));
 }

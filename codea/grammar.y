@@ -69,6 +69,7 @@ function:
 			@i @stats.vars_in@ = NULL;
 			@i @stats.vars@ = @stats.vars_out@;
 			
+			@asm reg_init(@stats.params@);
 			@asm asm_func_head(@T_IDENTIFIER.name@);
 		@}
 	;
@@ -217,7 +218,7 @@ add_expr:
 	  term T_PLUS term
 		@{	@i @add_expr.code@ = create_code(TT_ADD, @term.code@, @term.1.code@);
  			@}
-	| term T_PLUS add_expr
+	| add_expr T_PLUS term
 		@{	@i @add_expr.code@ = create_code(TT_ADD, @term.code@, @add_expr.1.code@);
 		@}
 	;
@@ -226,7 +227,7 @@ mult_expr:
 	  term T_MULT term
 		@{	@i @mult_expr.code@ = create_code(TT_MULT, @term.code@, @term.1.code@);
 		@}
-	| term T_MULT mult_expr
+	| mult_expr T_MULT term
 		@{	@i @mult_expr.code@ = create_code(TT_MULT, @term.code@, @mult_expr.1.code@);
 		@}
 	;
@@ -235,7 +236,7 @@ and_expr:
 	  term T_AND term
 		@{	@i @and_expr.code@ = create_code(TT_AND, @term.code@, @term.1.code@);
 		@}
-	| term T_AND and_expr
+	| and_expr T_AND term
 		@{	@i @and_expr.code@ = create_code(TT_AND, @term.code@, @and_expr.1.code@);
 		@}
 	;

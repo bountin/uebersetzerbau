@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
 
 #define CODE
 
@@ -18,17 +19,20 @@ stat:	return			# 0 #
 
 return:	TT_RETURN(expr)		# 2 #	asm_mov(LC_REG(bnode), "rax"); asm_ret();
 
-expr:	unary			# 0 #
-expr:	TT_ADD(term, term)	# 1 #	asm_mov(LC_REG(bnode), "rax"); printf("\taddq %%%s, %%rax\n",RIGHT_CHILD(bnode)->reg); bnode->reg = "rax";
-expr:	TT_MULT(term, term)	# 1 #	printf("\tmovq %%%s, %%rax\n\tmul  %%%s, %%rax\n", LEFT_CHILD(bnode)->reg, RIGHT_CHILD(bnode)->reg); bnode->reg = "rax";
-expr:	TT_AND(term, term)	# 1 #	printf("\tmovq %%%s, %%rax\n\tandq %%%s, %%rax\n", LEFT_CHILD(bnode)->reg, RIGHT_CHILD(bnode)->reg); bnode->reg = "rax";
+expr:	unary			# 0 #	
+expr:	TT_ADD(term, term)	# 1 #	bnode->reg = asm_add(LC_REG(bnode), RC_REG(bnode));
+expr:	TT_MULT(term, term)	# 1 #	bnode->reg = asm_mult(LC_REG(bnode), RC_REG(bnode));
+expr:	TT_AND(term, term)	# 1 #	bnode->reg = asm_and(LC_REG(bnode), RC_REG(bnode));
+expr:	TT_CMP_LE(term, term)	# 1 #	bnode->reg = asm_cmp_le(LC_REG(bnode), RC_REG(bnode));
+expr:	TT_CMP_NE(term, term)	# 1 #	bnode->reg = asm_cmp_ne(LC_REG(bnode), RC_REG(bnode));
 
-unary:	term			# 0 #
-unary:	TT_NOT(unary)		# 0 #	printf("\tmovq %%%s, %%rax\n\tnot %%rax\n", LEFT_CHILD(bnode)->reg); bnode->reg = "rax";
-unary:	TT_MINUS(unary)		# 0 #	printf("\tmovq %%%s, %%rax\n\tneg %%rax\n", LEFT_CHILD(bnode)->reg); bnode->reg = "rax";
+unary:	term			# 0 #	
+unary:	TT_NOT(unary)		# 0 #	bnode->reg = asm_not(LC_REG(bnode));
+unary:	TT_MINUS(unary)		# 0 #	bnode->reg = asm_minus(LC_REG(bnode));
+unary:	TT_READ(unary)		# 0 #	bnode->reg = asm_load(LC_REG(bnode));
 
-term:	expr			# 0 #
-term:	TT_NUM			# 0 #	printf("\tmovq $%i, %%r11\n", bnode->val); bnode->reg = "r11";
+term:	expr			# 1 #	
+term:	TT_NUM			# 0 #	bnode->reg = newreg(); printf("\tmovq $%i, %%%s\n", bnode->val, bnode->reg);
 term:	TT_VARIABLE		# 0 #	// haz register
 
 %%

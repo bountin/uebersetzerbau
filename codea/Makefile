@@ -1,4 +1,4 @@
-codea: y.tab.c lex.yy.c table.c table.h checks.c checks.h code.c code_gen.c code_gen.h asm.c asm.h
+codea: y.tab.c lex.yy.c table.c table.h checks.c checks.h code.c code_gen.c code_gen.h asm.c asm.h reg_management.h reg_management.c
 	gcc *.c -lfl -o codea
 
 oxout.y oxout.l: grammar.y scanner.flex

@@ -50,15 +50,15 @@ symbol *tbl_merge(symbol *A, symbol *B) {
 void tbl_print(symbol *table) {
 	symbol *s = table;
 	
-	printf("Tbl dump:\n");
+	printf("# Tbl dump:\n");
 
-	if (table == (symbol *)NULL) { printf("Empty\n\n"); return; }
+	if (table == (symbol *)NULL) { printf("# Empty\n\n"); return; }
 
 	while (s != (symbol *)NULL) {
 		if (s->reg == (char *)NULL) {
-			printf("%s\n", s->name);
+			printf("# %s\n", s->name);
 		} else {
-			printf("%s (%s)\n", s->name, s->reg);
+			printf("# %s (%s)\n", s->name, s->reg);
 		}
 		s = s->next;
 	}
@@ -70,7 +70,7 @@ char *tbl_find_reg(char *name, symbol *table) {
 	while (s != (symbol *)NULL) {
 		if (strcmp(s->name, name) == 0) {
 			#ifdef MY_DEBUG
-			printf(" -- Found %s: register %s\n",s-> name, s->reg);
+			printf("# -- Found %s: register %s\n",s-> name, s->reg);
 			#endif
 			return strdup(s->reg);
 		}
