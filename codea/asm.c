@@ -133,7 +133,7 @@ char* asm_cmp_le(char* p1, char* p2) {
 
         printf("\tcmp %%%s, %%%s\n", p1, p2);
         printf("\tsetge %%%s\n", get_8reg(r));
-	printf("\tand $255, %%%s\n", r);
+        printf("\tand $1, %%%s\n", r);
         return r;	
 }
 
@@ -155,9 +155,9 @@ char* asm_cmp_ne(char* p1, char* p2) {
 	} else {
 		r = newreg();
 	}
-	printf("\txor %%%s, %%%1$s\n", r);
 	printf("\tcmp %%%s, %%%s\n", p1, p2);
-	printf("\tsetz %%%s\n", get_8reg(r));
+	printf("\tsetnz %%%s\n", get_8reg(r));
+	printf("\tand $1, %%%s\n", r);
 	return r;
 }
 
