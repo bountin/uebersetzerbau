@@ -15,7 +15,8 @@ enum {
 	TT_CMP_LE,
 	TT_CMP_NE,
 	TT_NOT,
-	TT_READ
+	TT_READ,
+	TT_GOTO
 };
 
 #ifndef CODE
@@ -51,6 +52,7 @@ void not_supported(char* production);
 code_ptr* create_code(int type, code_ptr* left_child, code_ptr* right_child);
 code_ptr* create_code_num(long number);
 code_ptr* create_code_var(char* name, symbol* params, symbol* vars);
+code_ptr* create_code_goto(char* func_name, char* label_name);
 
 symbol* gen_para_regs(symbol* parameters);
 

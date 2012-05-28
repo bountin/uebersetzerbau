@@ -12,10 +12,12 @@
 
 %}
 %start stat
-%term TT_RETURN=1 TT_NUM=2 TT_IDENTIFIER=3 TT_ADD=4 TT_MULT=5 TT_MINUS=6 TT_VARIABLE=7 TT_AND=8 TT_CMP_LE=9 TT_CMP_NE=10 TT_NOT=11 TT_READ=12
+%term TT_RETURN=1 TT_NUM=2 TT_IDENTIFIER=3 TT_ADD=4 TT_MULT=5 TT_MINUS=6 TT_VARIABLE=7 TT_AND=8 TT_CMP_LE=9 TT_CMP_NE=10 TT_NOT=11 TT_READ=12 TT_GOTO=13
 %%
 
 stat:	return			# 0 #
+stat:	TT_GOTO			# 1 #	printf("\tjmp %s\n", bnode->name);
+stat:	term			# 0 #	// Do nothing
 
 return:	TT_RETURN(expr)		# 2 #	asm_mov(LC_REG(bnode), "rax"); asm_ret();
 

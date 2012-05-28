@@ -9,6 +9,14 @@ void asm_func_head(char* func_name) {
 	printf(".globl %1$s\n.type %1$s, @function\n%1$s:\n", func_name);
 }
 
+void asm_labeldefinitions(char* func_name, symbol* labels) {
+	symbol* label = labels;
+	while (label != NULL) {
+		printf("%s_%s:\n", func_name, label->name);
+		label = label->next;
+	}
+}
+
 void asm_mov(char* src, char* dest) {
 	#ifdef MY_DEBUG
 	printf("\t# asm_mov(%s, %s)\n", src, dest);

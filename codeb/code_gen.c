@@ -55,6 +55,18 @@ code_ptr* create_code_var(char* name, symbol* params, symbol* vars) {
 	return c;	
 }
 
+code_ptr* create_code_goto(char* func_name, char* label_name) {
+	code_ptr* c = create_code(TT_GOTO, (code_ptr *)NULL, (code_ptr *)NULL);
+	char* asm_lbl;
+
+	asm_lbl = strdup(func_name);
+	strcat(asm_lbl, "_");
+	strcat(asm_lbl, label_name);
+
+	c->name = asm_lbl;
+	return c;		
+}
+
 symbol* gen_para_regs(symbol* parameters) {
 	char *registers[6] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
 	int i = 0;

@@ -1,7 +1,10 @@
 #ifndef ASM_H
 #define ASM_H
 
+#include "table.h"
+
 void asm_func_head(char* func_name);
+void asm_labeldefinitions(char* func_name, symbol* labels);
 
 void asm_mov(char* src, char* dest);
 
