@@ -76,6 +76,7 @@ char *tbl_find_reg(char *name, symbol *table) {
 		}
 		s = s->next;
 	}
-	
-	printf("THIS SHOULD NEVER HAPPEN (tbl_find_reg(%s))", name);
+
+	// Not found
+	return (char *)NULL;	
 }

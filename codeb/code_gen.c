@@ -36,7 +36,19 @@ code_ptr* create_code_var(char* name, symbol* params, symbol* vars) {
 
 	check_variable(name, params, vars);
 
+	// First look for params
 	reg = tbl_find_reg(name, params);
+
+	if (reg == (char *) NULL) {
+		// 'name' not found @params, look @vars
+		reg = tbl_find_reg(name, vars);
+		if (reg == (char *) NULL) {
+			printf("THIS SHOULD NEVER HAPPEN: create_code_var(%s)\n", name);
+			tbl_print(params);
+			tbl_print(vars);
+			exit(3);
+		}
+	} 
 	c = create_code(TT_VARIABLE, (code_ptr *)NULL, (code_ptr *)NULL);
 	c->name = strdup(name);
 	c->reg = reg;
