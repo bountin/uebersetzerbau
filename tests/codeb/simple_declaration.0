@@ -1,0 +1,4 @@
+f()
+	var x = 42;
+	return x;
+end;
