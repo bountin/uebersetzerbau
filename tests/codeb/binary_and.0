@@ -1,0 +1,3 @@
+f(a)
+	return a and a and a and a and a and a;
+end;

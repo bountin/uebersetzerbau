@@ -1,0 +1,3 @@
+f(a,b)
+	return a and b and a and b and a and b;
+end;

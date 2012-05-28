@@ -1,0 +1,3 @@
+f(x)
+  return not x;
+end;
