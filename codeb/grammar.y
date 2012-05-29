@@ -119,7 +119,6 @@ stats:
 			@i @stats.vars_out@ = @stats.1.vars_out@;
 
 			@t check_duplicates(@stats.vars@, @stats.params@, @stats.labels@);
-
 			@asm execute_iburg(@stat.code@);
 		@}
 	|
@@ -170,9 +169,9 @@ stat:
 			@i @stats.labels_in@ = @stat.labels_in@;
 			@i @stat.labels_out@ = @stats.labels_out@;
 
-			@i @stat.code@ = (code_ptr *)NULL;
+			@i @stat.code@ = create_code_if(@expression.code@, get_if_id());
 
-			@t not_supported("IFs");
+			@asm @revorder(1) printf("if_%li:\n", @stat.code@->val);
 		@}
 	| T_VAR T_IDENTIFIER '=' expression 	/* variable initialization */
 		@{	@i @stat.vars_out@ = tbl_add_symbol(@stat.vars_in@, @T_IDENTIFIER.name@);

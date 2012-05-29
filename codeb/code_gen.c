@@ -4,6 +4,12 @@
 
 #include "code_gen.h"
 
+long if_id = 0;
+
+long get_if_id() {
+	return ++if_id;
+}
+
 void execute_iburg(code_ptr* code) {
 	burm_label(code); burm_reduce(code, 1);
 }
@@ -65,6 +71,13 @@ code_ptr* create_code_goto(char* func_name, char* label_name) {
 
 	c->name = asm_lbl;
 	return c;		
+}
+
+code_ptr* create_code_if(code_ptr* expr, long id) {
+	code_ptr* c = create_code(TT_IF, expr, NULL);
+	
+	c->val = id;
+	return c;
 }
 
 symbol* gen_para_regs(symbol* parameters) {

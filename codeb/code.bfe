@@ -12,13 +12,14 @@
 
 %}
 %start stat
-%term TT_RETURN=1 TT_NUM=2 TT_IDENTIFIER=3 TT_ADD=4 TT_MULT=5 TT_MINUS=6 TT_VARIABLE=7 TT_AND=8 TT_CMP_LE=9 TT_CMP_NE=10 TT_NOT=11 TT_READ=12 TT_GOTO=13 TT_MEM_WRITE=14
+%term TT_RETURN=1 TT_NUM=2 TT_IDENTIFIER=3 TT_ADD=4 TT_MULT=5 TT_MINUS=6 TT_VARIABLE=7 TT_AND=8 TT_CMP_LE=9 TT_CMP_NE=10 TT_NOT=11 TT_READ=12 TT_GOTO=13 TT_MEM_WRITE=14 TT_IF=15
 %%
 
 stat:	return				# 0 #
 stat:	TT_GOTO				# 1 #	printf("\tjmp %s\n", bnode->name);
 stat:	term				# 0 #	// Do nothing
 stat:	TT_MEM_WRITE(unary, expr)	# 1 #	printf("\tmovq %%%s, (%%%s)\n", RC_REG(bnode), LC_REG(bnode));
+stat:	TT_IF(expr)			# 0 #	printf("\tcmp $0, %%%s\n\tjz if_%li\n", LC_REG(bnode), bnode->val);
 
 return:	TT_RETURN(expr)			# 2 #	asm_mov(LC_REG(bnode), "rax"); asm_ret();
 

@@ -17,7 +17,8 @@ enum {
 	TT_NOT,
 	TT_READ,
 	TT_GOTO,
-	TT_MEM_WRITE
+	TT_MEM_WRITE,
+	TT_IF
 };
 
 #ifndef CODE
@@ -47,6 +48,8 @@ typedef struct code_ptr code_ptr;
 #define LC_REG(p) (LEFT_CHILD(p)->reg)
 #define RC_REG(p) (RIGHT_CHILD(p)->reg)
 
+long get_if_id();
+
 void execute_iburg(code_ptr* code);
 void not_supported(char* production);
 
@@ -54,6 +57,7 @@ code_ptr* create_code(int type, code_ptr* left_child, code_ptr* right_child);
 code_ptr* create_code_num(long number);
 code_ptr* create_code_var(char* name, symbol* params, symbol* vars);
 code_ptr* create_code_goto(char* func_name, char* label_name);
+code_ptr* create_code_if(code_ptr* expr, long id);
 
 symbol* gen_para_regs(symbol* parameters);
 
