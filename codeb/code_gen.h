@@ -16,7 +16,8 @@ enum {
 	TT_CMP_NE,
 	TT_NOT,
 	TT_READ,
-	TT_GOTO
+	TT_GOTO,
+	TT_MEM_WRITE
 };
 
 #ifndef CODE

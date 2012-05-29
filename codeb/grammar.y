@@ -196,9 +196,7 @@ stat:
 		@{	@i @stat.vars_out@ =  @stat.vars_in@;
 			@i @stat.labels_out@ = @stat.labels_in@;
 
-			@i @stat.code@ = (code_ptr *)NULL;
-
-			@t not_supported("writing to memory");
+			@i @stat.code@ = create_code(TT_MEM_WRITE, @unary.code@, @expression.code@);
 		@}
 	| term
 		@{	@i @stat.vars_out@ =  @stat.vars_in@;

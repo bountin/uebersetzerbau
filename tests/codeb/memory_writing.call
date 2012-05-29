@@ -1,0 +1,7 @@
+extern f(long *);
+
+long x = 5;
+
+f(&x);
+
+RET(x == 42);
