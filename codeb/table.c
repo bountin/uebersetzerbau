@@ -70,7 +70,7 @@ char *tbl_find_reg(char *name, symbol *table) {
 	while (s != (symbol *)NULL) {
 		if (strcmp(s->name, name) == 0) {
 			#ifdef MY_DEBUG
-			printf("# -- Found %s: register %s\n",s-> name, s->reg);
+			printf("# -- Found %s: register %s\n",s->name, s->reg);
 			#endif
 			return strdup(s->reg);
 		}

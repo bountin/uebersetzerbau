@@ -177,9 +177,7 @@ stat:
 		@{	@i @stat.vars_out@ = tbl_add_symbol(@stat.vars_in@, @T_IDENTIFIER.name@);
 			@i @stat.labels_out@ = @stat.labels_in@;
 
-			@i @stat.code@ = (code_ptr *)NULL;
-
-			@t not_supported("declaration");
+			@i @stat.code@ = create_code_assign(@T_IDENTIFIER.name@, @expression.code@);
 		@}
 	| T_IDENTIFIER '=' expression		/* writing to variable */
 		@{	@i @stat.vars_out@ =  @stat.vars_in@;
@@ -187,9 +185,7 @@ stat:
 
 			@t check_variable(@T_IDENTIFIER.name@, @stat.params@, @stat.vars@);
 
-			@i @stat.code@ = (code_ptr *)NULL;
-
-			@t not_supported("assignment");
+			@i @stat.code@ = create_code_assign(@T_IDENTIFIER.name@, @expression.code@);
 		@}
 	| T_MULT unary '=' expression		/* writing to memory */
 		@{	@i @stat.vars_out@ =  @stat.vars_in@;

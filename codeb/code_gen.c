@@ -36,7 +36,6 @@ code_ptr *create_code_num(long number) {
 }
 
 code_ptr* create_code_var(char* name, symbol* params, symbol* vars) {
-	// --XXX-- THIS CODE ONLY(!) CHECKS PARAMS FOR CODEA
 	char* reg;
 	code_ptr* c;
 
@@ -45,10 +44,10 @@ code_ptr* create_code_var(char* name, symbol* params, symbol* vars) {
 	// First look for params
 	reg = tbl_find_reg(name, params);
 
-	if (reg == (char *) NULL) {
+	if (reg == NULL) {
 		// 'name' not found @params, look @vars
 		reg = tbl_find_reg(name, vars);
-		if (reg == (char *) NULL) {
+		if (reg == NULL) {
 			printf("THIS SHOULD NEVER HAPPEN: create_code_var(%s)\n", name);
 			tbl_print(params);
 			tbl_print(vars);
@@ -80,10 +79,17 @@ code_ptr* create_code_if(code_ptr* expr, long id) {
 	return c;
 }
 
+code_ptr* create_code_assign(char* variable, code_ptr* child) {
+	code_ptr* c = create_code(TT_ASSIGN, child, NULL);
+	code_print(c);
+	c->name = strdup(variable);
+	return c;
+}
+
 symbol* gen_para_regs(symbol* parameters) {
 	char *registers[6] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
 	int i = 0;
-	symbol *para_start = parameters;
+	symbol 	*para_start = parameters;
 
 	while (parameters != (symbol *)NULL) {
 		if (i > 5) {
