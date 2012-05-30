@@ -66,6 +66,36 @@ void reg_init(symbol* paras) {
 	}
 }
 
+void var_init(symbol* vars) {
+	int i;
+	char* r = "";
+
+	while(vars != NULL) {
+		// Get a register from top of reg
+		
+		for(i=REG_MAX-1;i>=0;i--) {
+			if (reg[i] != NULL) {
+				r = reg[i];
+				break;
+			}
+		}
+
+		if (strcmp(r, "")==0) {
+			printf("No register free @var_init()\n");
+			exit(3);
+		}
+
+		#ifdef MY_DEBUG
+		printf("# - Reserving %s for var \n", r);
+		#endif
+
+		vars->reg = strdup(r);
+		reg[i] = NULL;
+		r = NULL;
+		vars = vars->next;
+	}
+}
+
 char *newreg() {
 	int i;
 	for (i=0; i < REG_MAX; i++) {

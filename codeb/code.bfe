@@ -20,6 +20,7 @@ stat:	TT_GOTO				# 1 #	printf("\tjmp %s\n", bnode->name);
 stat:	term				# 0 #	// Do nothing
 stat:	TT_MEM_WRITE(unary, expr)	# 1 #	printf("\tmovq %%%s, (%%%s)\n", RC_REG(bnode), LC_REG(bnode));
 stat:	TT_IF(expr)			# 0 #	printf("\tcmp $0, %%%s\n\tjz if_%li\n", LC_REG(bnode), bnode->val);
+stat:	TT_ASSIGN(expr)			# 0 #	asm_mov(LC_REG(bnode), bnode->reg);
 
 return:	TT_RETURN(expr)			# 2 #	asm_mov(LC_REG(bnode), "rax"); asm_ret();
 

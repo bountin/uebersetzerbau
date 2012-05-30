@@ -64,14 +64,13 @@ function:
 			@i @stats.labels@ = @stats.labels_out@;
 
 			@i @parameters.params_in@ = NULL;
-			@i @stats.params@ = gen_para_regs(@parameters.params_out@);
+			@i @stats.params@ = gen_para_regs(@parameters.params_out@, @stats.vars@);
 			
 			@i @stats.vars_in@ = NULL;
 			@i @stats.vars@ = @stats.vars_out@;
 
 			@i @stats.func_name@ = @T_IDENTIFIER.name@;
 			
-			@asm reg_init(@stats.params@);
 			@asm asm_func_head(@T_IDENTIFIER.name@);
 		@}
 	;
@@ -177,7 +176,7 @@ stat:
 		@{	@i @stat.vars_out@ = tbl_add_symbol(@stat.vars_in@, @T_IDENTIFIER.name@);
 			@i @stat.labels_out@ = @stat.labels_in@;
 
-			@i @stat.code@ = create_code_assign(@T_IDENTIFIER.name@, @expression.code@);
+			@i @stat.code@ = create_code_assign(@T_IDENTIFIER.name@, @expression.code@, @stat.vars@);
 		@}
 	| T_IDENTIFIER '=' expression		/* writing to variable */
 		@{	@i @stat.vars_out@ =  @stat.vars_in@;
@@ -185,7 +184,7 @@ stat:
 
 			@t check_variable(@T_IDENTIFIER.name@, @stat.params@, @stat.vars@);
 
-			@i @stat.code@ = create_code_assign(@T_IDENTIFIER.name@, @expression.code@);
+			@i @stat.code@ = create_code_assign(@T_IDENTIFIER.name@, @expression.code@, @stat.vars@);
 		@}
 	| T_MULT unary '=' expression		/* writing to memory */
 		@{	@i @stat.vars_out@ =  @stat.vars_in@;

@@ -1,2 +1,2 @@
-extern long f(long);
+extern long f();
 RET(f()==42);
