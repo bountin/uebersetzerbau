@@ -11,7 +11,9 @@ long get_if_id() {
 }
 
 void execute_iburg(code_ptr* code) {
-	burm_label(code); burm_reduce(code, 1);
+	burm_label(code);
+	burm_reduce(code, 1);
+	cleanup_callee();
 }
 
 void not_supported(char* production) {

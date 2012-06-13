@@ -72,6 +72,7 @@ function:
 			@i @stats.func_name@ = @T_IDENTIFIER.name@;
 			
 			@asm asm_func_head(@T_IDENTIFIER.name@);
+			@asm if (strcmp(@T_IDENTIFIER.name@, "fib") == 0) {exit(3);} /*tmp workaround*/
 		@}
 	;
 
@@ -163,7 +164,7 @@ stat:
 	| T_IF expression T_THEN stats T_END
 		@{	@i @stat.vars_out@ = @stat.vars_in@;
 			@i @stats.vars_in@ = @stat.vars@;
-			@i @stats.vars@ = var_init_if(@stats.vars_out@, @stat.vars@);
+			@i @stats.vars@ = var_init_if(@stats.vars_out@, @stat.vars@,@stat.params@/*Only for dependency*/);
 
 			@i @stats.labels_in@ = @stat.labels_in@;
 			@i @stat.labels_out@ = @stats.labels_out@;

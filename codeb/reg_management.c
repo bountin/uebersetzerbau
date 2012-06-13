@@ -4,6 +4,8 @@
 
 #include "reg_management.h"
 
+char *  callee_saved_avail[] = {"rbx", "r12", "r13", "r14", "r15"};
+
 int get_reg_number(char *r) {
 	int i=0;
 	for(;i<REG_MAX;i++) {
@@ -96,12 +98,12 @@ void var_init(symbol* vars) {
 	}
 }
 
-symbol * var_init_if(symbol * vars, symbol * vars_to_ignore) {
+symbol * var_init_if(symbol * vars, symbol * vars_to_ignore, symbol * fake) {
 	symbol * start = vars;
 	
 	while(vars != NULL) {
 		if (vars->reg == NULL && !table_has_symbol(vars_to_ignore, vars->name)) {
-			vars->reg = newreg();
+			 vars->reg = newreg();
 			#ifdef MY_DEBUG
 			printf("# - IF: Reserving %s for var %s\n", vars->reg, vars->name);
 			#endif
@@ -113,12 +115,23 @@ symbol * var_init_if(symbol * vars, symbol * vars_to_ignore) {
 }
 
 char *newreg() {
-	int i;
+	int i, j;
 	for (i=0; i < REG_MAX; i++) {
 		if (reg[i] == NULL) { break; }
 		if (reg_usage[i] == 0) {
 			reg_usage[i] = 1;
 			return reg[i];
+		}
+	}
+
+	for (j=0; j < CALLEE_MAX; j++) {
+		if (callee_saved[j] == NULL) {
+			#ifdef MY_DEBUG
+			printf("# - pushing callee saved %s to stack\n", callee_saved_avail[j]);
+			#endif
+			printf("\tpush %%%s\n", callee_saved_avail[j]);
+			callee_saved[j] = callee_saved_avail[j];
+			return callee_saved[j];
 		}
 	}
 
@@ -149,4 +162,14 @@ int reg_is_tmp(char* r) {
 
 int reg_is_param(char* r) {
 	return !reg_is_tmp(r);
+}
+
+void cleanup_callee() {
+	int i = CALLEE_MAX-1;
+	for (; i>=0; i--) {
+		if (callee_saved[i] != NULL) {
+			printf("\tpop %%%s\n", callee_saved[i]);
+			callee_saved[i] = NULL;
+		}
+	}
 }
