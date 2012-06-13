@@ -96,6 +96,22 @@ void var_init(symbol* vars) {
 	}
 }
 
+symbol * var_init_if(symbol * vars, symbol * vars_to_ignore) {
+	symbol * start = vars;
+	
+	while(vars != NULL) {
+		if (vars->reg == NULL && !table_has_symbol(vars_to_ignore, vars->name)) {
+			vars->reg = newreg();
+			#ifdef MY_DEBUG
+			printf("# - IF: Reserving %s for var %s\n", vars->reg, vars->name);
+			#endif
+		}
+		vars = vars->next;
+	}
+
+	return start;
+}
+
 char *newreg() {
 	int i;
 	for (i=0; i < REG_MAX; i++) {
@@ -134,4 +150,3 @@ int reg_is_tmp(char* r) {
 int reg_is_param(char* r) {
 	return !reg_is_tmp(r);
 }
-

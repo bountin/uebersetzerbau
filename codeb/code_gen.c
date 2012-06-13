@@ -79,17 +79,26 @@ code_ptr* create_code_if(code_ptr* expr, long id) {
 	return c;
 }
 
-code_ptr* create_code_assign(char* variable, code_ptr* child, symbol* vars) {
+code_ptr* create_code_assign(char* variable, code_ptr* child, symbol* vars, symbol * paras) {
 	code_ptr* c = create_code(TT_ASSIGN, child, NULL);
 	c->name = strdup(variable);
 
-	// Look though symbol table
+	// Look though vars symbol table
 	while (vars != NULL) {
 		if (strcmp(vars->name, variable)==0) {
 			c->reg = vars->reg;
 			return c;
 		}
 		vars = vars->next;
+	}
+
+	// Look through paras symbol table
+	while (paras != NULL) {
+		if (strcmp(paras->name, variable)==0) {
+			c->reg = paras->reg;
+			return c;
+		}
+		paras = paras->next;
 	}
 	
 	printf("Variable %s not found in symbol table\n", variable);

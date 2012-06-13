@@ -11,6 +11,7 @@ int	reg_usage[REG_MAX];
 char* get_8reg(char* r);
 
 void reg_init(symbol* params);
+symbol * var_init_if(symbol * vars, symbol * vars_to_ignore);
 char *newreg();
 void freereg(char* reg);
 
