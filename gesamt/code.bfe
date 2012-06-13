@@ -1,0 +1,53 @@
+%{
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+#include <string.h>
+
+#define CODE
+
+#include "asm.h"
+#include "code_gen.h"
+
+%}
+%start stat
+%term TT_RETURN=1 TT_NUM=2 TT_IDENTIFIER=3 TT_ADD=4 TT_MULT=5 TT_MINUS=6 TT_VARIABLE=7 TT_AND=8 TT_CMP_LE=9 TT_CMP_NE=10 TT_NOT=11 TT_READ=12 TT_GOTO=13 TT_MEM_WRITE=14 TT_IF=15 TT_ASSIGN=16
+%%
+
+stat:	return				# 0 #
+stat:	TT_GOTO				# 1 #	printf("\tjmp %s\n", bnode->name);
+stat:	term				# 0 #	// Do nothing
+stat:	TT_MEM_WRITE(unary, expr)	# 1 #	printf("\tmovq %%%s, (%%%s)\n", RC_REG(bnode), LC_REG(bnode));
+stat:	TT_IF(expr)			# 1 #	printf("\tcmp $0, %%%s\n\tjz if_%li\n", LC_REG(bnode), bnode->val);
+stat:	TT_ASSIGN(expr)			# 1 #	asm_mov(LC_REG(bnode), bnode->reg);
+stat:	TT_ASSIGN(const)		# 1 #	printf("\tmovq $%i, %%%s\n", LEFT_CHILD(bnode)->val, bnode->reg);
+
+return:	TT_RETURN(expr)			# 2 #	asm_mov(LC_REG(bnode), "rax"); cleanup_callee(); asm_ret();
+
+expr:	unary				# 0 #	
+expr:	TT_ADD(term, term)		# 2 #	bnode->reg = asm_add(LC_REG(bnode), RC_REG(bnode));
+expr:	TT_MULT(term, term)		# 2 #	bnode->reg = asm_mult(LC_REG(bnode), RC_REG(bnode));
+expr:	TT_AND(term, term)		# 2 #	bnode->reg = asm_and(LC_REG(bnode), RC_REG(bnode));
+expr:	TT_CMP_LE(term, term)		# 2 #	bnode->reg = asm_cmp_le(LC_REG(bnode), RC_REG(bnode));
+expr:	TT_CMP_NE(term, term)		# 2 #	bnode->reg = asm_cmp_ne(LC_REG(bnode), RC_REG(bnode));
+
+unary:	term				# 0 #	
+unary:	TT_NOT(unary)			# 1 #	bnode->reg = asm_not(LC_REG(bnode));
+unary:	TT_MINUS(unary)			# 1 #	bnode->reg = asm_minus(LC_REG(bnode));
+unary:	TT_READ(unary)			# 1 #	bnode->reg = asm_load(LC_REG(bnode));
+
+term:	expr				# 0 #	
+term:	const				# 1 #	bnode->reg = newreg(); printf("\tmovq $%i, %%%s\n", bnode->val, bnode->reg);
+term:	TT_VARIABLE			# 0 #	// haz register
+
+const:	TT_NUM				# 0 #	//nothing
+const:	TT_ADD(const, const)		# 0 #	bnode->val = LEFT_CHILD(bnode)->val + RIGHT_CHILD(bnode)->val;
+const:	TT_MULT(const, const)		# 0 #	bnode->val = LEFT_CHILD(bnode)->val * RIGHT_CHILD(bnode)->val;
+const:	TT_AND(const, const)		# 0 #	bnode->val = LEFT_CHILD(bnode)->val & RIGHT_CHILD(bnode)->val;
+const:	TT_CMP_LE(const, const)		# 0 #	bnode->val = LEFT_CHILD(bnode)->val <= RIGHT_CHILD(bnode)->val;
+const:	TT_CMP_NE(const, const)		# 0 #	bnode->val = LEFT_CHILD(bnode)->val != RIGHT_CHILD(bnode)->val;
+const:	TT_NOT(const)			# 0 #	bnode->val = ~ LEFT_CHILD(bnode)->val;
+const:	TT_MINUS(const)			# 0 #	bnode->val = - LEFT_CHILD(bnode)->val;
+
+%%
