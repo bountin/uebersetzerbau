@@ -72,7 +72,6 @@ function:
 			@i @stats.func_name@ = @T_IDENTIFIER.name@;
 			
 			@asm asm_func_head(@T_IDENTIFIER.name@);
-			@asm if (strcmp(@T_IDENTIFIER.name@, "fib") == 0) {exit(3);} /*tmp workaround*/
 		@}
 	;
 
