@@ -36,8 +36,7 @@ main() { yyparse(); }
 @attributes {struct symbol *params_out, *params_in;}					parameters
 @attributes {struct symbol *params, *vars_in, *vars_out, *labels_in, *labels_out, *vars, *labels; struct code_ptr *code; char* func_name;} 		stat
 
-@attributes {struct symbol *params, *vars, *labels; struct code_ptr *code; }	expression add_expr mult_expr and_expr unary term
-@attributes {struct symbol *params, *vars, *labels; }	call_parameters
+@attributes {struct symbol *params, *vars, *labels; struct code_ptr *code; }	expression add_expr mult_expr and_expr unary term call_parameters
 
 /** Test used variables and labels **/
 @traversal @preorder t
@@ -274,12 +273,18 @@ term:
 		@{	@i @term.code@ = create_code_var(@T_IDENTIFIER.name@, @term.params@, @term.vars@);
 		@}
 	| T_IDENTIFIER '(' call_parameters ')'
-		@{	@i @term.code@ = create_code_func(@T_IDENTIFIER.name@);
+		@{	@i @term.code@ = create_code_func(@T_IDENTIFIER.name@, @call_parameters.code@);
 		@}
 	;
 
 call_parameters:
 	  expression ',' call_parameters
+		@{	@i @call_parameters.code@ = create_code(TT_FUNC_PARAM, @expression.code@, @call_parameters.1.code@);
+		@}
 	| expression
-	| 
+		@{	@i @call_parameters.code@ = @expression.code@;
+		@}
+	|
+		@{	@i @call_parameters.code@ = NULL;
+		@}
 	;

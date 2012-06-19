@@ -12,7 +12,7 @@
 
 %}
 %start stat
-%term TT_RETURN=1 TT_NUM=2 TT_IDENTIFIER=3 TT_ADD=4 TT_MULT=5 TT_MINUS=6 TT_VARIABLE=7 TT_AND=8 TT_CMP_LE=9 TT_CMP_NE=10 TT_NOT=11 TT_READ=12 TT_GOTO=13 TT_MEM_WRITE=14 TT_IF=15 TT_ASSIGN=16 TT_FUNC=17
+%term TT_RETURN=1 TT_NUM=2 TT_IDENTIFIER=3 TT_ADD=4 TT_MULT=5 TT_MINUS=6 TT_VARIABLE=7 TT_AND=8 TT_CMP_LE=9 TT_CMP_NE=10 TT_NOT=11 TT_READ=12 TT_GOTO=13 TT_MEM_WRITE=14 TT_IF=15 TT_ASSIGN=16 TT_FUNC=17 TT_FUNC_PARAM=18
 %%
 
 stat:	return				# 0 #
@@ -43,7 +43,11 @@ not:	TT_NOT(unary)			# 0 #	bnode->reg = LC_REG(bnode);
 term:	expr				# 0 #	
 term:	const				# 1 #	bnode->reg = newreg(); printf("\tmovq $%i, %%%s\n", bnode->val, bnode->reg);
 term:	TT_VARIABLE			# 0 #	// haz register
-term:	TT_FUNC				# 0 #	bnode->reg = strdup(asm_func_call(bnode));
+
+term:	TT_FUNC(params)			# 0 #	bnode->reg = strdup(asm_func_call(bnode));
+
+params:	TT_FUNC_PARAM(expr, params)	# 0 #	
+params: expr				# 0 #	
 
 const:	TT_NUM				# 0 #	//nothing
 const:	TT_ADD(const, const)		# 0 #	bnode->val = LEFT_CHILD(bnode)->val + RIGHT_CHILD(bnode)->val;

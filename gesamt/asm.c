@@ -218,20 +218,40 @@ char* asm_load(char* p1) {
 
 char * asm_func_call(code_ptr * bnode) {
 	char * ret_reg = newreg();
-
-	char * caller_saved[] = {"rax", "rcx", "rdx", "rsi", "rdi", "r8", "r9", "r10", "r11"};
 	int i;
+	char * caller_saved[] = {"rax", "rcx", "rdx", "rsi", "rdi", "r8", "r9", "r10", "r11"};
+	char * argument_register[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
+	code_ptr * bnode_start = bnode;
 
 	// Save caller saved registers
 	#ifdef MY_DEBUG
 	printf("# Saving caller saved registers\n");
 	#endif
 	for (i=0; i<9; i++) {
+		if (strcmp(ret_reg, caller_saved[i])==0) {
+			continue;
+		}
 		printf("\tpush %%%s\n", caller_saved[i]);
 	}
 
-	printf("\tcall %s\n", bnode->name);
+	// Prepare parameters
+	i = 0;
+	bnode = LEFT_CHILD(bnode_start); // bnode_start is a TT_FUNC!! Haz a TT_FUNC_PARAM as LC
+	#ifdef MY_DEBUG
+	printf("# Cp'ing params to right registers\n");
+	#endif
+	while(bnode != NULL) {
+		if (bnode->op == TT_FUNC_PARAM) {
+			asm_mov(LC_REG(bnode), argument_register[i]);
+		} else {
+			asm_mov(bnode->reg, argument_register[i]);
+		}
+		bnode = RIGHT_CHILD(bnode);
+		i++;
+	}
 
+	// Call and save result
+	printf("\tcall %s\n", bnode_start->name);
 	asm_mov("rax", ret_reg);
 
 	// Load caller saved registers
@@ -239,6 +259,9 @@ char * asm_func_call(code_ptr * bnode) {
 	printf("# Loading caller saved registers\n");
 	#endif
 	for(i=9-1; i>=0; i--) {
+		if (strcmp(ret_reg, caller_saved[i])==0) {
+			continue;
+		}
 		printf("\tpop %%%s\n", caller_saved[i]);
 	}
 

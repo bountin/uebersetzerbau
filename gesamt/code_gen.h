@@ -20,7 +20,8 @@ enum {
 	TT_MEM_WRITE,
 	TT_IF,
 	TT_ASSIGN,
-	TT_FUNC
+	TT_FUNC,
+	TT_FUNC_PARAM
 };
 
 #ifndef CODE
@@ -61,7 +62,7 @@ code_ptr * create_code_var(char* name, symbol* params, symbol* vars);
 code_ptr * create_code_goto(char* func_name, char* label_name);
 code_ptr * create_code_if(code_ptr* expr, long id);
 code_ptr * create_code_assign(char* variable, code_ptr* child, symbol* vars, symbol * paras);
-code_ptr * create_code_func(char * name);
+code_ptr * create_code_func(char * name, code_ptr * params);
 
 symbol* gen_para_regs(symbol* parameters, symbol* vars);
 

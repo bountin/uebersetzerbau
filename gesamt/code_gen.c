@@ -107,9 +107,11 @@ code_ptr* create_code_assign(char* variable, code_ptr* child, symbol* vars, symb
 	exit(3);
 }
 
-code_ptr * create_code_func(char * name) {
+code_ptr * create_code_func(char * name, code_ptr * params) {
 	code_ptr * c = create_code(TT_FUNC, NULL, NULL);
 	c->name = strdup(name);
+
+	LEFT_CHILD(c) = params;
 
 	return c;
 }
