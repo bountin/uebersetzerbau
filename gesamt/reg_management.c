@@ -129,7 +129,7 @@ char *newreg() {
 			#ifdef MY_DEBUG
 			printf("# - pushing callee saved %s to stack\n", callee_saved_avail[j]);
 			#endif
-			printf("\tpush %%%s\n", callee_saved_avail[j]);
+			printf("\tpushq %%%s\n", callee_saved_avail[j]);
 			callee_saved[j] = callee_saved_avail[j];
 			return callee_saved[j];
 		}
@@ -168,7 +168,7 @@ void cleanup_callee() {
 	int i = CALLEE_MAX-1;
 	for (; i>=0; i--) {
 		if (callee_saved[i] != NULL) {
-			printf("\tpop %%%s\n", callee_saved[i]);
+			printf("\tpopq %%%s\n", callee_saved[i]);
 			callee_saved[i] = NULL;
 		}
 	}

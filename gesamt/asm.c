@@ -5,6 +5,8 @@
 #include "asm.h"
 #include "reg_management.h"
 
+char * caller_saved[] = {"rax", "rcx", "rdx", "rsi", "rdi", "r8", "r9", "r10", "r11"};
+
 void asm_func_head(char* func_name) {
 	printf(".globl %1$s\n.type %1$s, @function\n%1$s:\n", func_name);
 }
@@ -218,10 +220,10 @@ char* asm_load(char* p1) {
 
 char * asm_func_call(code_ptr * bnode) {
 	char * ret_reg = newreg();
-	int i;
-	char * caller_saved[] = {"rax", "rcx", "rdx", "rsi", "rdi", "r8", "r9", "r10", "r11"};
+	int i, offset;
 	char * argument_register[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
 	code_ptr * bnode_start = bnode;
+	char * reg;
 
 	// Save caller saved registers
 	#ifdef MY_DEBUG
@@ -231,7 +233,7 @@ char * asm_func_call(code_ptr * bnode) {
 		if (strcmp(ret_reg, caller_saved[i])==0) {
 			continue;
 		}
-		printf("\tpush %%%s\n", caller_saved[i]);
+		printf("\tpushq %%%s\n", caller_saved[i]);
 	}
 
 	// Prepare parameters
@@ -242,10 +244,17 @@ char * asm_func_call(code_ptr * bnode) {
 	#endif
 	while(bnode != NULL) {
 		if (bnode->op == TT_FUNC_PARAM) {
-			asm_mov(LC_REG(bnode), argument_register[i]);
+			reg = LC_REG(bnode);
 		} else {
-			asm_mov(bnode->reg, argument_register[i]);
+			reg = bnode->reg;
 		}
+		offset = callersaved_to_offset(reg);
+		if (offset <= 32 && offset != -1) {
+			printf("\tmovq %i(%%rsp), %%%s\n", offset, argument_register[i]);
+		} else {
+			printf("\tmovq %%%s, %%%s\n", reg, argument_register[i]);
+		}
+	
 		bnode = RIGHT_CHILD(bnode);
 		i++;
 	}
@@ -262,10 +271,22 @@ char * asm_func_call(code_ptr * bnode) {
 		if (strcmp(ret_reg, caller_saved[i])==0) {
 			continue;
 		}
-		printf("\tpop %%%s\n", caller_saved[i]);
+		printf("\tpopq %%%s\n", caller_saved[i]);
 	}
 
 	return ret_reg;
+}
+
+int callersaved_to_offset(char * reg) {
+	int i;
+
+	for (i=0; i<9; i++ ) {
+		if (strcmp(reg, caller_saved[8-i])==0) {
+			return i * 8;
+		}
+	}
+
+	return -1;
 }
 
 void asm_ret() {
