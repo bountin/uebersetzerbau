@@ -14,7 +14,7 @@ code.c: code.bfe
 	bfe < code.bfe | iburg > code.c
 
 clean:
-	rm -f gesamt oxout.* lex.yy.c code.c
+	rm -f gesamt oxout.* lex.yy.c code.c testgesamt*.s 1
 
 test: gesamt
 	/usr/ftp/pub/ubvl/test12/gesamt/test
