@@ -216,6 +216,35 @@ char* asm_load(char* p1) {
         return r;
 }
 
+char * asm_func_call(code_ptr * bnode) {
+	char * ret_reg = newreg();
+
+	char * caller_saved[] = {"rax", "rcx", "rdx", "rsi", "rdi", "r8", "r9", "r10", "r11"};
+	int i;
+
+	// Save caller saved registers
+	#ifdef MY_DEBUG
+	printf("# Saving caller saved registers\n");
+	#endif
+	for (i=0; i<9; i++) {
+		printf("\tpush %%%s\n", caller_saved[i]);
+	}
+
+	printf("\tcall %s\n", bnode->name);
+
+	asm_mov("rax", ret_reg);
+
+	// Load caller saved registers
+	#ifdef MY_DEBUG
+	printf("# Loading caller saved registers\n");
+	#endif
+	for(i=9-1; i>=0; i--) {
+		printf("\tpop %%%s\n", caller_saved[i]);
+	}
+
+	return ret_reg;
+}
+
 void asm_ret() {
 	printf("\tret\n");
 }

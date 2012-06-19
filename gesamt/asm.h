@@ -2,6 +2,7 @@
 #define ASM_H
 
 #include "table.h"
+#include "code_gen.h"
 
 void asm_func_head(char* func_name);
 void asm_labeldefinitions(char* func_name, symbol* labels);
@@ -18,6 +19,8 @@ char* asm_cmp_ne(char* p1, char* p2);
 char* asm_not(char* p1);
 char* asm_minus(char* p1);
 char* asm_load(char* p1);
+
+char * asm_func_call(code_ptr * bnode);
 
 void asm_ret();
 

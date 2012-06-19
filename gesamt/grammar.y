@@ -274,8 +274,7 @@ term:
 		@{	@i @term.code@ = create_code_var(@T_IDENTIFIER.name@, @term.params@, @term.vars@);
 		@}
 	| T_IDENTIFIER '(' call_parameters ')'
-		@{	@i @term.code@ = (code_ptr *)NULL;
-			@t not_supported("Function call");
+		@{	@i @term.code@ = create_code_func(@T_IDENTIFIER.name@);
 		@}
 	;
 
