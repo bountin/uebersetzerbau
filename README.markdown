@@ -1,4 +1,5 @@
 This is a repository for my university lecture 'Uebersetzerbau'. It's about how compilers work and for practice we have to implement our own language with our own compiler.
+The gesamt part of this repo is the completed project but sadly it has some bugs which I was not able to fix in time.
 
 The university page is at http://www.complang.tuwien.ac.at/andi/185A48
 
@@ -35,3 +36,11 @@ http://www.complang.tuwien.ac.at/ubvl/skriptum/skriptum12.html#x1-180007.3
 a single function definition with n parameters and terminated by the keyword <i>end</i>. Its body can 
 contain several operations as well as <i>goto</i>s or <i>if</i>s. The complete grammar as EBNF is available 
 at http://www.complang.tuwien.ac.at/ubvl/skriptum/skriptum12.html#x1-220007.4
+
+<b>ag</b> implements an attributed grammar which generates symbol tables for variables, labels and parameters.
+
+<b>codea</b> implements actual code generation for a subset of the features. All statements are not implemented except for the return statement which is required for testing ;).
+
+<b>codeb</b> implements missing statements except the function call.
+
+<b>gesamt</b> adds the function call and all stuff which must be kept in mind for it.
